@@ -1,0 +1,9 @@
+# Ignore everything
+*
+
+# But these files...
+!.gitignore
+!*.tex
+!*.bib
+!*.bst
+!figures/*.pdf

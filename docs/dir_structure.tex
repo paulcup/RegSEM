@@ -1,0 +1,18 @@
+\section{Directory structure}
+
+ 
+\textit{RegSEM} is composed by three main directories:
+\begin{itemize}[topsep=0pt]
+\item \textit{\bfseries MESH} contains the source codes which enable to build meshes. All the routines
+are in the subdirectory \textit{\bfseries src}. After compiling these routines, the executable
+\textit{Mesher.x} is created in the subdirectory \textit{\bfseries bin}. Its use is described in
+section \ref{mesh}.
+\item \textit{\bfseries SOLVE} contains the source codes which enable to compute seismic wave
+propagation. All the routines are in the subdirectory \textit{\bfseries src}. After compiling these
+routines, the executable \textit{spec.x} is created in the subdirectory \textit{\bfseries bin}. Its
+use is described in section \ref{solve}.
+\item \textit{\bfseries DATA} contains text files associated with different models. These files can be
+used as inputs of i) \textit{Mesher.x} to generate Moho and free surface topography or ii)  \textit{spec.x} to introduce the elastic parameters of the medium. The provided models are \textit{\bfseries CUB},
+\textit{\bfseries CRUST2.0} and \textit{\bfseries ETOPO5}.
+%\item \textit{\bfseries WORKDIR}, which is the working directory.
+\end{itemize}

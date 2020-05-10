@@ -1,0 +1,10 @@
+\section{Introduction}
+
+
+\textit{RegSEM} enables to simulate three-dimensional elastic wave propagation. It uses the so-called Spectral Element Method (SEM) which was developed in elastodynamics in the nineties \Citep{Seriani94, Facetal97, Kom98, Seriani98, Kom99}. This numerical method is very powerful because it solves the wave equation with weak dispersion and allows to get full waveforms with no restriction on the velocity contrast of the model.
+
+\textit{RegSEM} has been written to study the seismic response of the Earth at the regional scale. By "regional scale" we here understand distances ranging from about 10\,km (local scale) to 10\,000\,km (continental scale). The code includes full anisotropy, attenuation, ellipticity and the mass of the oceans. To avoid spurious reflections, Perfectly Matched Layers (PML) are used at the boundaries of the region \Citep{FestaVil05}. More details about \textit{RegSEM}'s features can be found in \Citep{RegSEM2012}.
+
+The present manual helps in using the structured version of the code (i.e. the version which deals
+with structured meshes). The main advantage of this version is the ability to easily handle 3D Moho
+and free surface topography in any spherical chunk of the Earth. Working in a rectangular cuboid for smaller scale applications is also possible. 

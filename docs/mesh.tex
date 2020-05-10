@@ -1,0 +1,242 @@
+\section{The Mesher}
+\label{mesh}
+
+
+The SEM is a finite element like method in which the spatial domain is decomposed into non-overlapping hexahedra. When using \textit{RegSEM}, the first step consists in defining this decomposition, i.e. building the mesh. To do so, \textit{Mesher.x} has to be used. This executable is created by the compilation of the source codes in the directory \textit{\bfseries MESH/src} and it is placed in the directory \textit{\bfseries MESH/bin}. To perform the compilation, you need to have the \href{http://glaros.dtc.umn.edu/gkhome/metis/metis/overview}{METIS 4.0.3 library} installed on your computer. Then write the path to this library along with your Fortran compiler in \textit{Makefile} and do \texttt{make}.
+
+
+\subsection{Things to know before starting}
+
+The SEM divides the 3D region under study into hexahedral elements (e.g. figure \ref{elemt_and_GLL}a). In each element, the wavefield is described by Gauss-Lobatto-legendre (GLL) points. These points are related to a polynomial order\footnote{The SEM uses Lagrange polynomials to discretize the functional spaces}: if order $N$ is considered, then there are $N+1$ GLL points in each direction, that is to say $(N+1)^3$ GLL points per element (e.g. figure \ref{elemt_and_GLL}b). In classical applications of the SEM, $4 \le N \le 8$. For such values of $N$, around six GLL points per wavelength are needed everywhere in the region to properly describe the seismic wavefield. This means that the size of the elements $d$ and the polynomial order $N$ are both constrained by the shortest wavelength $\lambda_{min}$ propagated in the medium. As a rule of thumb, we give the following table to properly choose $d$ as a function of $N$ and $\lambda_{min}$:
+\begin{equation}
+\renewcommand{\arraystretch}{1.4} % Espace entre 2 lignes x 2
+\begin{tabular}{c|c|c|c|c|c}
+N & 4 & 5 & 6 & 7 & 8 \\ \hline
+$d/\lambda_{min}$ & 0.8 & 0.9 & 1 & 1.1 & 1.2
+\label{elemsize}
+\end{tabular}\,.
+\end{equation}
+
+\begin{figure}
+\centerline{\includegraphics[width=\linewidth]{figures/elemt_and_GLL.pdf}}
+\caption{a) A chunk of the Earth meshed by hexahedral elements. b) An element contains $(N+1)^3$ GLL points. Here $N=4$.}
+\label{elemt_and_GLL}
+\end{figure}
+
+In \textit{RegSEM}, the time integration is computed using a second-order finite difference scheme. To ensure the stability of this scheme, the time-step $\Delta t$ has to verify the Courant-Friedrichs-Lewy (CFL) condition:
+\begin{equation}
+\label{courant}
+\Delta t \leq C \left[ \frac{\Delta x}{\alpha} \right]_{min} \mbox{,}
+\end{equation}
+where $C$ denotes the Courant number, usually chosen between 0.3 and 0.4, and $\left[ \frac{\Delta x}{\alpha} \right]_{min}$ the minimum ratio of grid spacing $\Delta x$ (distance between two GLL points) and P-wave speed $\alpha$. In \textit{RegSEM}, the time-step is computed automatically: the code first finds $\left[\frac{\Delta x}{\alpha} \right]_{min}$ by a grid search and then determines $\Delta t$ using \eqref{courant} with $C=0.35$.
+
+Table \eqref{elemsize} and equation \eqref{courant} have major implications on the SEM computation cost. Let us illustrate that in the case of realistic Earth models:
+\begin{itemize}[topsep=0pt]
+\item The mesh shown in figure \ref{PREMmesh} is designed to propagate a wavefield with a minimum wavelength $\lambda_{min} =$ 60\,km using a polynomial order $N=4$. The Earth model is PREM \Citep{PREM}. In this case, ratio $\frac{\Delta x}{\alpha}$ is minimum in a thin layer defined by two discontinuities at 15 and 24.4\,km depth. Indeed, the elements used to mesh this layer have a vertical size of 9.4\,km, which is very small compared to the size of the other elements. The layer has a P-wave speed $\alpha = 6.8\,km.s^{-1}$, so we find
+\begin{equation}
+\label{example_ratio}
+\left[ \frac{\Delta x}{\alpha} \right]_{min} =
+\frac{9.4/\gamma_N}{6.8} \, s \mbox{,}
+\end{equation}
+where $\gamma_N$ is a coefficient which depends on $N$ and which comes from the fact that the GLL points are non-evenly spaced in an element. For $N=4$, $\gamma_N \simeq 6$. Combining equations \eqref{courant} and \eqref{example_ratio} and taking $C=0.35$, we obtain $\Delta t \leq 0.080637\,s$, which is very small and makes the computation cost very high.
+\item The mesh shown in figure \ref{CUBmesh} is designed to propagate a wavefield with a minimum wavelength $\lambda_{min} =$ 50\,km using a polynomial order $N=4$. The region under study is the Atlantic ocean and Europe. The velocity model is CUB \Citep{ShapRitz02}, which has a realistic crust. Such a crust is very thin below the ocean: the minimum thickness is about 7\,km, so there are some elements that have a very small vertical size compared to the size of the other elements. Ratio $\frac{\Delta x}{\alpha}$ is minimum in these elements. Assuming a P-wave velocity $\alpha = 5\,km.s^{-1}$ in the oceanic crust, we find the following condition on the time-step: $\Delta t \leq 0.081667\,s$.
+\end{itemize}
+
+\begin{figure}
+\centerline{\includegraphics[width=0.95\linewidth]{figures/PREM.pdf}}
+\caption{A mesh for PREM. The shallowest fluid layer which normally lies on the top of the model has been replaced by the underlying solid. The chunk is $\mbox{20}^{\circ} \times \mbox{40}^{\circ}$ large and 1400\,km thick. The horizontal size of the elements is $d_h=\mbox{0.44}^{\circ}$. This allows the propagation of a 20\,s period wavefield using a polynomial order $N=4$. The S-wave speed at each GLL point on the vertical border of the domain is plotted. A zoom into the upper part of the model shows the discontinuities. The star and the triangle correspond to the source and the station used in subsection \ref{expl_PREM}.}
+\label{PREMmesh}
+\end{figure}
+
+\begin{figure}
+\centerline{\includegraphics[width=0.95\linewidth]{figures/CUB.pdf}}
+\caption{A mesh for CUB in the Atlantic-European region. The chunk is $\mbox{30}^{\circ} \times \mbox{70}^{\circ}$ large and 1500\,km thick. The horizontal size of the elements is $d_h=\mbox{0.35}^{\circ}$. This allows the propagation of a 20\,s period wavefield using a polynomial order $N=4$. The S-wave speed at each GLL point on the border of the domain is plotted. A zoom into the upper part of the southern side of the chunk shows the discontinuities. The transition between a thin oceanic crust and a thick continental crust is visible. A map of the Moho corresponding to the present chunk is shown in figure
+\ref{CUBmoho}.}
+\label{CUBmesh}
+\end{figure}
+
+
+\subsection{Inputs}
+\label{input_mesh}
+
+When running \textit{Mesher.x}, the user is asked several questions:
+
+\texttt{Do you want to take into account the Earth sphericity?}\\
+\textit{RegSEM} is designed to compute regional wavefields so the sphericity of the Earth has to be taken into account (enter \texttt{y}). We keep the possibility of working in a simple rectangular cuboid though (enter \texttt{n}), but many interesting options offered by \textit{RegSEM} will not work in this case: the elements will all have the same size and shape (so 3D interfaces cannot be honored), no component rotation, etc.
+
+\begin{itemize}[topsep=2pt,itemsep=4pt]
+
+\item If \texttt{y} is entered, the following requirements appear:
+\parskip 10pt
+
+\texttt{Introduce the coordinates (lat,long) of the center}\\
+This defines the geographic center $C(\theta_C,\phi_C )$ of the surface of the chunk.
+
+\texttt{Introduce the lengths of the horizontal edges: Xi and Eta \linebreak
+(max: 90 degrees)}\\
+These two values define the lateral size of the region. $Xi$ is the length of the chunk in the North-South direction. It defines a segment $\Delta \phi$ of the meridian $\phi_C$. The middle of this segment is $C$. $Eta$ is the length of the chunk in the East-West direction. It defines a segment for each great circle perpendicular to $\Delta \phi$. The middle of each segment is its intersection point with $\Delta \phi$. With this definition, the borders of the chunk are not meridians and parallels (e.g. figure \ref{CUBmoho}).
+
+\texttt{Introduce the horizontal space step}\\
+This defines the horizontal size of the elements $d_h$ (in degree).
+
+\hspace*{-0.3cm}
+\begin{tabular}{ll}
+\texttt{Do you want}
+& \texttt{PREM interfaces? (1)}\\
+& \texttt{PREM interfaces + 3D Moho? (2)}\\
+& \texttt{PREM interfaces + 3D Moho - 220km interface? (3)}\\
+& \texttt{another 1D model? (4)}
+\end{tabular}\\
+(1) meshes the interfaces of PREM (1221.5, 3480, 3630, 5600, 5701, 5771, 5971, 6151, 6291, 6346.6, 6356 and 6371\,km). In the following, you are not forced to use the PREM seismic velocities. Your velocity model just will have to be close enough to PREM because the vertical size of the elements are defined according to the PREM speeds.\\
+(2) meshes the interfaces of PREM except the discontinuities at 6291, 6346.6 and 6356\,km. It meshes a 3D Moho instead. To do so, the program requires a text file: \textit{Moho.asc}. Between latitudes $\theta_{min}$ and $\theta_{max}$ and longitudes $\phi_{min}$ and $\phi_{max}$, this file indicates the depth of the Moho for each point of a $d\theta*d\phi$ grid. The format of \textit{Moho.asc} is the following:\\
+\hspace*{1cm} $ \theta_{min} \hspace*{0.2cm} \theta_{max} \hspace*{0.2cm} d\theta$\\
+\hspace*{1cm} $ \phi_{min} \hspace*{0.2cm} \phi_{max} \hspace*{0.2cm} d\phi$\\
+\hspace*{1cm} $ D(0,0) $\\
+\hspace*{1cm} $ D(0,1) $\\
+\hspace*{1cm} $ : $\\
+\hspace*{1cm} $ : $\\
+\hspace*{1cm} $ D(0,\frac{\phi_{max}-\phi_{min}}{d\phi}) $\\
+\hspace*{1cm} $ D(1,0) $\\
+\hspace*{1cm} $ : $\\
+\hspace*{1cm} $ : $\\
+\hspace*{1cm} $ D(i,j) $\\
+\hspace*{1cm} $ : $\\
+\hspace*{1cm} $ : $\\
+\hspace*{1cm} $ D(\frac{\theta_{max}-\theta_{min}}{d\theta},\frac{\phi_{max}-\phi_{min}}{d\phi}) $\\
+where $D(i,j)$ is the depth of the Moho at the point ($\theta_{min}+i*d\theta$, $\phi_{min}+j*d\phi$). In the directory \textit{\bfseries DATA}, two \textit{Moho.asc} are provided: one corresponding to model \textit{\bfseries CUB} \Citep{ShapRitz02} and another corresponding to \textit{\bfseries CRUST2.0} \Citep{CRUST2}.\\
+(3) is the same as (2) but the discontinuity at 6151\,km is not meshed.\\
+(4) enables to mesh any spherical interface. If this option is chosen, then it is asked:\\
+\hspace*{0.6cm} \texttt{Introduce the number of layers}\\
+\hspace*{0.6cm} \texttt{Introduce \textit{X} radii (in meter)} (where \texttt{\textit{X}} is the number of layers + 1)\\
+The radii have to be entered from the deepest to the surface. If the radius of the surface is different from 6371\,km, then parameter \textit{Rterre} in \textit{SOLVE/src/Modules/angles.f90} has to be changed to properly use the generated mesh in the solver. In the meshes provided by option (4), the vertical size of the elements is first equal to $d_h$ and then it is adjusted in each layer to fit the thickness of the layer.
+
+\texttt{Introduce the depth (in meter) of the bottom}\\
+This is asked only if (1), (2) or (3) is chosen in the previous input.
+
+\texttt{Do you want to take into account the Earth ellipticity?}\\
+If \texttt{y} is entered, then the ellipticity is calculated using the Clairault's formula \Citep{Dahlen1998}.
+
+\texttt{Do you want a topography at the surface?}\\
+If \texttt{y} is entered, then a text file has to be provided: \textit{Topo.asc}. Its format is the same as \textit{Moho.asc}. In \textit{\bfseries DATA/ETOPO5}, a \textit{Topo.asc} file corresponding to the topography of model \href{www.ngdc.noaa.gov/mgg/global/etopo5.HTML}{ETOPO5} is given.
+
+\texttt{How many nodes do you want for the geometry of each element: \linebreak
+8, 20 or 27?}\\
+8 control points imply a linear interpolation of the geometry. 20 or 27 control points imply a quadratic interpolation. 20 control points cannot be taken into account by the solver yet, so do not use it. I advise 27 control points.
+
+\item If \texttt{n} is entered, the following requirements appear:
+\parskip 10pt
+
+\texttt{Introduce the lengths of the edges: x\_len, y\_len, z\_len}\\
+These three values define the size of the cuboid. The Cartesian coordinates $x,y,z$ will then vary in $[0;x\_len]$, $[0;y\_len]$ and $[0;z\_len]$, respectively.
+
+\texttt{Introduce the space steps: dx, dy, dz}\\
+These three values define the size of the elements.
+
+\end{itemize}
+
+\texttt{Do you want PML ?}\\
+To avoid reflected waves at the boundaries of the chunk, Perfectly Matched Layers (PML) can be used. In this case, the elements at the limit of the region have particular features allowing to absorb the incident wavefield \Citep{FestaVil05}.
+
+\begin{itemize}[topsep=2pt,itemsep=4pt]
+
+\item If \texttt{y} is entered, the following requirements appear:
+\parskip 10pt
+
+\texttt{Introduce the polynomial order for a PML element, and then \linebreak
+for a normal element}\\
+The damping direction(s) in the elements which make up the PML can have a higher polynomial order than the one used for the "normal" elements. I advise $N_{PML} = 8$ and $4 \le N \le 8$.
+
+\texttt{Do you want a free surface at the top?}\\
+Usually \texttt{y}.
+
+\item If \texttt{n} is entered, there is nothing to do.
+
+\end{itemize}
+
+\texttt{Introduce the number of parts to partition the mesh}\\
+The spatial domain is divided into subdomains to allow a parallel computation of the solver. Here,
+the number of processors (i.e. the number of subdomains) you intend to use has to be specified.
+
+\texttt{Do you want a random traction?}\\
+This option is available only if the sphericity of the Earth discretized with 27 control points is considered. It allows to define random signals which can be used in the solver to impose a random traction (i.e. noise) at the free surface. Because this option is not fully automatic yet, enter \texttt{n} here, unless you know how to use the traction in the solver.
+
+\texttt{Do you want a time-reversal mirror?}\\
+If \texttt{y} is entered, then the position of the mirror needs to be defined. To do so, the user is asked to introduce the number of elements between the border of the chunk (i.e. the PML) and the mirror. I advise 3 or 4 elements.
+
+%\textbf{NB}: If a 3D Moho is introduced, then information about the thickness of the elements just above and below the Moho is returned at the end of the run.
+
+
+\subsection{Outputs}
+\label{mesh4spec}
+
+\textit{Mesher.x} provides text files which are used by the solver. There is one text file per
+processor. Its name is \textit{mesh4spec.XXX}, where \textit{XXX} corresponds to the number assigned
+to the processor.\\
+To use \textit{RegSEM}, it is not necessary to know the structure of the \textit{mesh4spec.XXX}
+files, but I here give a brief description of them though.
+
+\begin{itemize}[topsep=2pt,itemsep=4pt]
+
+\item\underline{n\_dim}: Spatial dimension of the problem. Only \textit{3} is possible.
+
+\item\underline{nx, ny, nz}: Number of elements in each dimension in the whole domain.
+
+\item\underline{i1, i2, j1, j2, k1, k2}: Number of elements between the border of the chunk (i.e. the PML) and the time-reversal mirror in each direction. These numbers are negative if there is no mirror.
+
+\item\underline{cover}: Twelve numbers which allow to define a cover of elements in which the anisotropy is attenuated from the physical anisotropic medium to the isotropic PMLs.
+
+\item\underline{curve}: tells if the sphericity is taken into account or not.\\
+\underline{model}: Type of the interfaces contained in the mesh
+(\textit{1}: PREM, \textit{2}: PREM + Moho, \textit{3}: PREM + Moho - 220km, \textit{4}: other).
+If curve = \textit{false}, then model = \textit{0}.\\
+\underline{ellipticity}: tells if the ellipticity is taken into account or not.
+
+\item\underline{rotation}: Matrix which rotates the chunk of calculation (centred on the North
+pole) to the real chunk. This matrix appears only if curve = \textit{true}.
+
+\item\underline{n\_glob\_nodes}: Number of nodes (or control points) describing the geometry of the
+subdomain.
+
+\item\underline{coord\_nodes}: Cartesian coordinates of the nodes.\\
+\underline{R\_sph}: Spherical radius of the nodes, i.e. distance of the nodes from the center of
+the Earth before Clairault's perturbation. This information is given only if ellipticity =
+\textit{true}.
+
+\item\underline{n\_elem}: Number of elements in the subdomain.
+
+\item\underline{mat\_index}: assigns an integer to each element.
+This integer lies between \textit{0} and \textit{26} and refers to a "material" which is described in
+the material file (see paragraph \ref{elasticfile}).\\
+\underline{cov\_index}: assigns an integer to each element.
+This integer lies between \textit{0} and \textit{26} and refers to the position of the element with respect to the cover.\\
+\underline{moho}: assigns an integer to each element.
+This integer is \textit{-1} for the elements just below the 3D Moho, \textit{1} for those just above, and \textit{0} for the others.\\
+\underline{topo}: assigns an integer to each element.
+This integer is \textit{1} for the elements just below the 3D free surface and \textit{0} for the others.\\
+\underline{i, j, k}: indexes of the element in the whole domain.
+
+\item\underline{n\_nodes}: Number of nodes (or control points) used to describe the geometry of an element.
+
+\item\underline{control\_nodes}: indicates the nodes assigned to each element.
+
+\item\underline{n\_faces}: Number of faces in the subdomain.
+
+\item\underline{near\_faces}: indicates the 6 faces which belong to each element.
+
+\item\underline{n\_edges}: Number of edges in the subdomain.
+
+\item\underline{near\_edges}: indicates the 12 edges which belong to each element.
+
+\item\underline{n\_vertices}: Number of vertices in the subdomain.
+
+\item\underline{near\_vertices}: indicates the 8 vertices which belong to each element.
+
+\item\underline{n\_proc}: Number of processors.
+
+\item\underline{comm}: defines how many and which faces, edges and vertices the processor is supposed to communicate to the other processors.
+
+\end{itemize}
+
+If a 3D Moho or a 3D free surface is meshed, then a \textit{moho.out} or a \textit{topo.out} file is provided, respectively. This text file stores the Moho depth or the free surface elevation, respectively, at each node ($\theta,\phi$) of the mesh. It can be easily used as an input file in a \href{https://www.soest.hawaii.edu/gmt/}{GMT}-script to create maps (e.g. figure \ref{CUBmoho}).
+
+If the boolean \textit{write\_vtk} is turned to \textit{true} (default) in \textit{Mesher.f90}, then a vts file named\textit{elements\_grid.vts} is returned. This file stores the structured mesh in a format that is handled by many 3D viewers like \href{https://www.paraview.org/}{Paraview}.

@@ -1,0 +1,81 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[a4paper,scale=1,margin=2.5cm,bmargin=2.8cm]{geometry}
+\usepackage[english]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{mathptmx}
+\usepackage[scaled=0.90]{helvet}
+\usepackage{courier}
+
+\usepackage{natbib}
+
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{bm}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage[urlcolor=cyan]{hyperref}
+
+%\usepackage{fancyhdr}
+%\pagestyle{fancyplain}
+%\addtolength{\headheight}{1.6pt} % si 11pt
+%\addtolength{\headheight}{2.5pt} % si 12pt
+
+%\renewcommand{\chaptermark}[1]{\markboth{#1}{#1}}
+%\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
+%\lhead[\fancyplain{}{\bfseries\thepage}]{\fancyplain{}{\bfseries\rightmark}}
+%\rhead[\fancyplain{}{\bfseries\leftmark}]{\fancyplain{}{\bfseries\thepage}}
+%\cfoot{}
+\newcommand{\Section}[1]{
+   \section*{#1}
+   \addcontentsline{toc}{section}{#1}
+   \markboth{#1}{#1}
+}
+\newenvironment{Annexes}
+   {\setcounter{section}{0}
+   \def\thesection{\thechapter.\Alph{section}}
+   }
+   {\def\thesection{\thechapter.\roman{section}}
+   }
+
+\parindent 12pt
+\parskip 2ex plus 0.1ex minus 0.1ex
+\footskip 40pt
+
+
+\begin{document}
+
+
+{\large{\bf February 2020 \hfill Written by Paul Cupillard}}
+
+
+\vspace*{2cm}
+\centerline{\fbox{\LARGE{\bf RegSEM.4.6 Manual}}}
+\vspace*{1cm}
+
+
+{\parskip 2pt
+\tableofcontents
+}
+
+\newpage
+
+\input{intro}
+
+\input{dir_structure}
+
+\input{mesh}
+
+\input{solver}
+
+\input{examples}
+
+\bibliographystyle{fchicagoPC}
+\addcontentsline{toc}{section}{References}
+\markboth{References}{References}
+\bibliography{PoloBiblio}
+
+
+\end{document}

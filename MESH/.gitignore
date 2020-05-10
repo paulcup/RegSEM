@@ -1,0 +1,4 @@
+bin/*.x
+src/*.o
+src/Modules/*.o
+src/Modules/*.mod
