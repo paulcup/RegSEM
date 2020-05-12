@@ -3,4 +3,5 @@
 
 # But these files...
 !.gitignore
+!*/
 !*/*.f90
