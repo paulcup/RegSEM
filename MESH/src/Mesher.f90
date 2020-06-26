@@ -343,17 +343,17 @@ endif
 if (model==2 .or. model==3) then
     open (11, file="Moho.asc", status="old")
     read (11,*) latmin, latmax, dlat
-    if (mod(latmax-latmin,dlat)/=0) then
-        print *,"In the file Moho.asc the latitude step doesn't fit the latitude limits"
-        stop
-    endif
+!    if (mod(latmax-latmin,dlat)/=0) then
+!        print *,"In the file Moho.asc the latitude step doesn't fit the latitude limits"
+!        stop
+!    endif
     read (11,*) lonmin, lonmax, dlong
     if (lonmin<0.d0)   lonmin = 360.d0 + lonmin
     if (lonmax<0.d0)   lonmax = 360.d0 + lonmax
-    if (mod(lonmax-lonmin,dlong)/=0) then
-        print *,"In the file Moho.asc the longitude step doesn't fit the longitude limits"
-        stop
-    endif
+!    if (mod(lonmax-lonmin,dlong)/=0) then
+!        print *,"In the file Moho.asc the longitude step doesn't fit the longitude limits"
+!        stop
+!    endif
     m = int((latmax-latmin)/dlat) + 1
     n = int((lonmax-lonmin)/dlong) + 1
     allocate (moho(0:m-1,0:n-1))
@@ -400,17 +400,17 @@ endif
 if (topo_log) then
     open (11, file="Topo.asc", status="old")
     read (11,*) latmin, latmax, dlat
-    if (mod(latmax-latmin,dlat)/=0) then
-        print *,"In the file Topo.asc the latitude step doesn't fit the latitude limits"
-        stop
-    endif
+!    if (mod(latmax-latmin,dlat)/=0) then
+!        print *,"In the file Topo.asc the latitude step doesn't fit the latitude limits"
+!        stop
+!    endif
     read (11,*) lonmin, lonmax, dlong
     if (lonmin<0.d0)   lonmin = 360.d0 - lonmin
     if (lonmax<0.d0)   lonmax = 360.d0 - lonmax
-    if (mod(lonmax-lonmin,dlong)/=0) then
-        print *,"In the file Topo.asc the longitude step doesn't fit the longitude limits"
-        stop
-    endif
+!    if (mod(lonmax-lonmin,dlong)/=0) then
+!        print *,"In the file Topo.asc the longitude step doesn't fit the longitude limits"
+!        stop
+!    endif
     m = int((latmax-latmin)/dlat) + 1
     n = int((lonmax-lonmin)/dlong) + 1
     allocate (topo(0:m-1,0:n-1))
