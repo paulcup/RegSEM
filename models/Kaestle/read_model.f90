@@ -1,3 +1,4 @@
+module read_model !!! Polynomial interpolation of E. Kaestle's model (JGR 2018) !!!
 
 implicit none
 
@@ -75,7 +76,7 @@ doubleprecision, intent(INOUT) :: rho,vp,vs,Qmu
 
 doubleprecision :: x,y,z
 
-doubleprecision, parameter :: PS_ratio = 1.8
+doubleprecision, parameter :: PS_ratio = 1.8, vs_min = 1800.d0
 
 
 if (first_time) then
@@ -96,6 +97,7 @@ if (z>depth(n_depth))    z = depth(n_depth)
 call polint3D (latitude, longitude, depth, sw_vel(:,:,:), order, x, y, z, vs)
 
 vs = vs*1000.d0
+vs = min(vs,vs_min)
 vp = PS_ratio*vs
 rho = 2670.d0
 Qmu = 300.d0
