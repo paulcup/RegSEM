@@ -1,10 +1,9 @@
-module read_model !!! Polynomial interpolation of E. Kaestle's model (JGR 2018)  !!!
 
 implicit none
 
 public :: get_value, get_value_aniso, deload
 private :: load_model, sw_vel, latitude,longitude,depth, &
-           first_time, order, n_lat,n_long,n_depth, vs_min
+           first_time, order, n_lat,n_long,n_depth
 
 integer, parameter :: order = 3   ! 2=linear, 3=quadratic, 4=cubic, etc...
 
@@ -57,7 +56,6 @@ doubleprecision, dimension(1:n_depth) :: depth = &
    1.70000000e+02,  1.75000000e+02,  1.80000000e+02,  1.85000000e+02, &
    1.90000000e+02,  1.95000000e+02,  2.00000000e+02 /)
 
-doubleprecision :: vs_min = 1000000.d0
 doubleprecision, dimension(:,:,:), allocatable :: sw_vel
 logical :: first_time = .true.
 
@@ -101,8 +99,6 @@ vs = vs*1000.d0
 vp = PS_ratio*vs
 rho = 2670.d0
 Qmu = 300.d0
-
-vs_min = min(vs,vs_min)
 
 
 end subroutine get_value
@@ -153,8 +149,6 @@ implicit none
 
 
 deallocate (sw_vel)
-
-print *, vs_min
 
 
 end subroutine deload

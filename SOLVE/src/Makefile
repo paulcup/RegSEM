@@ -2,8 +2,8 @@
 
 FC = 		mpiifort   # MPI - Fortran 90 compiler
 #FC =		mpif90
-#CC = 		icc   # C compiler
-CC =		gcc
+CC = 		icc   # C compiler
+#CC =		gcc
 OPT = 		-O3 -fpp #-w -ipo -noalign -fp-model source
 #OPT =		-O3 -cpp # -ffree-line-length-none
 

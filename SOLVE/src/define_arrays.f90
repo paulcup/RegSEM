@@ -187,7 +187,7 @@ do n = 0,Tdomain%n_elem-1
               call get_value_aniso (r,theta,phi,rho,A,C,F,L,M,Gc,Gs,Hc,Hs,Bc,Bs,Ec,Es,Qmu, &
                                     Tdomain%specel(n)%moho_position)
 !              if (n==Tdomain%n_elem-1 .and. i==ngllx-1 .and. j==nglly-1 .and. k==ngllz-1) then
-!                 call deload   ! Desallocation (pour CUB)
+!                 call deload   ! Desallocation (pour CUB et Kaestla)
 !              endif
            else
               call get_value_aniso (x,y,z,rho,A,C,F,L,M,Gc,Gs,Hc,Hs,Bc,Bs,Ec,Es,Qmu, &
@@ -285,9 +285,9 @@ do n = 0,Tdomain%n_elem-1
         else
            if (Tdomain%curve) then
               call get_value (r,theta,phi,rho,vp,vs,Qmu,Tdomain%specel(n)%moho_position)
-!              if (n==Tdomain%n_elem-1 .and. i==ngllx-1 .and. j==nglly-1 .and. k==ngllz-1) then
-!                 call deload   ! Desallocation (pour CUB)
-!              endif
+              if (n==Tdomain%n_elem-1 .and. i==ngllx-1 .and. j==nglly-1 .and. k==ngllz-1) then
+                 call deload   ! Desallocation (pour CUB et Kaestle)
+              endif
            else
               call get_value (x,y,z,rho,vp,vs,Qmu,Tdomain%specel(n)%moho_position)
 !              if (n==Tdomain%n_elem-1 .and. i==ngllx-1 .and. j==nglly-1 .and. k==ngllz-1) then
