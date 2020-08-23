@@ -1901,11 +1901,11 @@ if (ok==0) then
  do l = 0,20
      theta_loc(l) = colatmax - (i*dlat + (l-10)*dlat/5.d0)
      do k = 0,20
-         phi_loc = j*dlong + (k-10)*dlong/5.d0
+         phi_loc = lonmin + j*dlong + (k-10)*dlong/5.d0
          pt(l,k) = pt(l,k) * dexp(- (phi_loc-phi_deg)**2 / (2.d0*sigma**2))
      enddo
  enddo
- pt_inter(:) = 0
+ pt_inter(:) = 0.d0
  do l = 0,20
      do k = 0,9
          pt_inter(l) = pt_inter(l) + (pt(l,2*k) + 4.d0*pt(l,2*k+1) + pt(l,2*k+2))
@@ -1918,7 +1918,7 @@ if (ok==0) then
  do l = 0,20
      pt_inter(l) = pt_inter(l) * dexp(- (theta_loc(l)-theta_deg)**2 / (2.d0*sigma**2))
  enddo
- depth = 0
+ depth = 0.d0
  do k = 0,9
      depth = depth + (pt_inter(2*k) + 4.d0*pt_inter(2*k+1) + pt_inter(2*k+2))
  enddo
