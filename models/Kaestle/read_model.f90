@@ -97,7 +97,7 @@ if (z>depth(n_depth))    z = depth(n_depth)
 call polint3D (latitude, longitude, depth, sw_vel(:,:,:), order, x, y, z, vs)
 
 vs = vs*1000.d0
-vs = min(vs,vs_min)
+vs = max(vs,vs_min)
 vp = PS_ratio*vs
 rho = 2670.d0
 Qmu = 300.d0
