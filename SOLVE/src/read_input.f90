@@ -44,6 +44,8 @@ else
    read (11,*)
 endif
 
+read (11,*) Tdomain%save_model
+
 read (11,*) Tdomain%n_sls
 if (Tdomain%n_sls>0) then
    read (11,*) Tdomain%T1_att, Tdomain%T2_att

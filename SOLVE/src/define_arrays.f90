@@ -38,8 +38,6 @@ character*60 :: modelfile
 character*20, parameter :: myfmt = "(4f10.3)"
 
 
-Tdomain%save_model = .false.
-
 
 !!! Initialisation !!!
 
