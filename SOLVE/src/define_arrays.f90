@@ -27,7 +27,7 @@ doubleprecision, dimension (1:3) :: barycentre, tmp
 doubleprecision, dimension (0:1,0:1) :: LocInvGrad_surf
 doubleprecision, dimension (1:3,1:2) :: boundary
 doubleprecision, dimension (0:2,0:2) :: Rot
-doubleprecision, dimension (1:3,1:3) :: Rot2
+!doubleprecision, dimension (1:3,1:3) :: Rot2
 doubleprecision, dimension (1:6,1:6) :: Cij
 doubleprecision, dimension (1:8,1:3) :: vertices
 doubleprecision, dimension (:), allocatable :: timestep, rad
@@ -71,11 +71,11 @@ else if (meshtype==0) then   ! To be set for any cuboid chunk (curve=F)
 endif
 epsil = 1.d0   ! Precision (in meter) when matching the elastic model with the mesh at the interfaces
 
-if (Tdomain%curve) then
-   Rot = transpose(Tdomain%rot)
-   Rot2(1,1:3) = Rot(0,0:2);   Rot2(2,1:3) = Rot(1,0:2);   Rot2(3,1:3) = Rot(2,0:2)
-   Rot = Tdomain%rot
-endif
+!if (Tdomain%curve) then
+!   Rot = transpose(Tdomain%rot)
+!   Rot2(1,1:3) = Rot(0,0:2);   Rot2(2,1:3) = Rot(1,0:2);   Rot2(3,1:3) = Rot(2,0:2)
+!   Rot = Tdomain%rot
+!endif
 
 ! Determination des coordonnees extremes du sous-domaine
 boundary(:,1) = huge(x);   boundary(:,2) = -huge(x)
@@ -149,7 +149,9 @@ do n = 0,Tdomain%n_elem-1
            z = Rot(2,0)*xa + Rot(2,1)*ya + Rot(2,2)*za
            ! Convert the cartesian coordinates into spherical coordinates
            call cart2sph (x,y,z,r,theta,phi)
-           if (Tdomain%ellipticity)   r = Rsph(i,j,k)
+           if (Tdomain%ellipticity)   r = Rsph(i,j,k) ! The model is assumed to be in spherical
+                                                      ! coordinates => no geodetic/geocentric
+                                                      ! latitude ambiguity
            if (Tdomain%specel(n)%ocean .and. k==ngllz-1) then
               Tdomain%specel(n)%hocean(i,j) = Rterre - r
               if (Tdomain%specel(n)%hocean(i,j)<0.d0)   Tdomain%specel(n)%hocean(i,j) = 0.d0
@@ -257,7 +259,7 @@ do n = 0,Tdomain%n_elem-1
               ! Expression de Cij en cartesien
               if (Tdomain%curve)   call c_4tensor(Cij,theta,phi)
               ! Expression de Cij dans le chunk de reference
-              if (Tdomain%curve)   call rot_4tensor(Cij,Rot2)
+!              if (Tdomain%curve)   call rot_4tensor(Cij,Rot2)
               ! Sauvegarde des 21 coeffs
               idef = 0
               do ii = 1,6
